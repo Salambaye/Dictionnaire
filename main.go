@@ -9,7 +9,7 @@ import (
 func main() {
 
 	//Création d'un dictionnaire
-	dic := make(dictionary.Dictionary)
+	dic := dictionary.New()
 
 	//Ajout de quelques mots et définitions au dictionnaire
 	dic.Add("WIFI", "Le Wi-Fi est une technologie sans fil qui permet aux appareils électroniques de se connecter à Internet et de communiquer entre eux")

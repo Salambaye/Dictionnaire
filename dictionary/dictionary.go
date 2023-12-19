@@ -7,6 +7,11 @@ import (
 
 type Dictionary map[string]string
 
+// New crée et renvoie une nouvelle instance de Dictionary.
+func New() Dictionary {
+	return make(Dictionary)
+}
+
 // Add ajoute un mot et sa définition au dictionnaire.
 func (d Dictionary) Add(word, definition string) {
 	d[word] = definition
