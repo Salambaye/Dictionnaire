@@ -14,8 +14,8 @@ func (d Dictionary) Add(word, definition string) {
 
 // Get pour afficher la définition spécifique d'un mot
 func (d Dictionary) Get(word string) (string, bool) {
-	definition, found := d[word]
-	return definition, found
+	definition, mottrouve := d[word]
+	return definition, mottrouve
 }
 
 // Remove pour supprimer un mot du dictionnaire.
