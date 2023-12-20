@@ -6,16 +6,19 @@ import (
 	"Dictionnaire/dictionary"
 )
 
+const filename = "dictionary/dictionary.txt"
+
 func main() {
 
 	//Création d'un dictionnaire
 	dic := dictionary.New()
 
-	//Ajout de quelques mots et définitions au dictionnaire
-	dic.Add("WIFI", "Le Wi-Fi est une technologie sans fil qui permet aux appareils électroniques de se connecter à Internet et de communiquer entre eux")
-	dic.Add("Valise", "Une valise est un type de bagage utilisé pour transporter des vêtements et d'autres articles personnels lors de voyages")
-	dic.Add("Informatique", "Domaine des concepts et autres techniques employées pour le traitement automatique de l’information")
-	dic.Add("Bras", "Membre du corps")
+	//Chargement du dictionnaire depuisle fichier "dictionary.txt"
+	err := dic.LoadFromFile(filename)
+	if err != nil {
+		fmt.Println("Erreur lors du chargement du fichier :", err)
+		return
+	}
 
 	//Utilisation de Get pour afficher la définition spécifique d'un mot
 	mot_a_afficher := "WIFI"
@@ -31,6 +34,12 @@ func main() {
 	if _, mottrouve := dic.Get(motASupprimer); mottrouve {
 		dic.Remove(motASupprimer)
 		fmt.Printf("%s est supprimé du dictionnaire\n", motASupprimer)
+
+		// Sauvegarde des modifications dans le fichier texte
+		err := dic.SaveToFile(filename)
+		if err != nil {
+			fmt.Println("Erreur lors de la sauvegarde du fichier :", err)
+		}
 	} else {
 		fmt.Printf("%s n'est pas dans le dictionnaire, impossible de le supprimer\n", motASupprimer)
 	}

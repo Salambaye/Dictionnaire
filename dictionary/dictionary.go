@@ -2,7 +2,9 @@ package dictionary
 
 import (
 	"fmt"
+	"io/ioutil"
 	"sort"
+	"strings"
 )
 
 type Dictionary map[string]string
@@ -12,9 +14,40 @@ func New() Dictionary {
 	return make(Dictionary)
 }
 
-// Add ajoute un mot et sa définition au dictionnaire.
-func (d Dictionary) Add(word, definition string) {
-	d[word] = definition
+// Fonction pour charger le dictionnaire depuis le fichier dictionary.txt
+func (d Dictionary) LoadFromFile(filename string) error {
+	file, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return err
+	}
+
+	lines := strings.Split(string(file), "\n")
+	for _, line := range lines {
+		parts := strings.Split(line, ":")
+		if len(parts) == 2 {
+			word := strings.TrimSpace(parts[0])
+			definition := strings.TrimSpace(parts[1])
+			d[word] = definition
+		}
+	}
+
+	return nil
+}
+
+// Fonction pour enregistrer le dictionnaire dans le fichier dictionary.txt
+func (d Dictionary) SaveToFile(filename string) error {
+	var lines []string
+	for word, definition := range d {
+		lines = append(lines, fmt.Sprintf("%s : %s", word, definition))
+	}
+
+	data := []byte(strings.Join(lines, "\n"))
+	err := ioutil.WriteFile(filename, data, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Get pour afficher la définition spécifique d'un mot
