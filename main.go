@@ -22,6 +22,7 @@ func main() {
 	}
 
 	// Gestion des routes
+	// Création des gestionnaires pour différentes routes HTTP
 	http.HandleFunc("/add", func(w http.ResponseWriter, r *http.Request) {
 		handleAdd(dic, w, r)
 	})
@@ -44,36 +45,38 @@ func main() {
 
 // handleAdd gère la route /add
 func handleAdd(dic *dictionary.Dictionary, w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+	if r.Method != http.MethodPost { //Vérifier si la méthode HHTP de la requête est POST
 		http.Error(w, "Méthode non autorisée", http.StatusMethodNotAllowed)
 		return
 	}
 
+	//Attente d'un corps de requête JSON contenant un mot (Word) et une définition (Definition)
 	var entry struct {
 		Word       string `json:"word"`
 		Definition string `json:"definition"`
 	}
 
-	decoder := json.NewDecoder(r.Body)
+	decoder := json.NewDecoder(r.Body) // Décodage du JSON de la requête dans la structure entry
 	err := decoder.Decode(&entry)
 	if err != nil {
 		http.Error(w, "Erreur de décodage JSON", http.StatusBadRequest)
 		return
 	}
 
+	//Création du canal pour synchroniser l'ajout asynchrone au dictionnaire
 	channelAdd := make(chan struct{})
-	go func() {
+	go func() { //Lancement du goroutine
 		dic.Add(entry.Word, entry.Definition, channelAdd, filename)
 	}()
 
-	<-channelAdd
+	<-channelAdd //Envoi d'un signal sur le canal par le goroutine
 
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusCreated) //Réponse HTTP avec le code de statut 201 (StatusCreated) pour indiquer que la ressource a été créée avec succès
 }
 
 // handleGet gère la route /get
 func handleGet(dic *dictionary.Dictionary, w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
+	if r.Method != http.MethodGet { //Vérifier si la méthode HHTP de la requête est GET
 		http.Error(w, "Méthode non autorisée", http.StatusMethodNotAllowed)
 		return
 	}
@@ -97,7 +100,7 @@ func handleGet(dic *dictionary.Dictionary, w http.ResponseWriter, r *http.Reques
 
 // handleRemove gère la route /remove
 func handleRemove(dic *dictionary.Dictionary, w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodDelete {
+	if r.Method != http.MethodDelete { //Vérifier si la méthode HHTP de la requête est DELETE
 		http.Error(w, "Méthode non autorisée", http.StatusMethodNotAllowed)
 		return
 	}
@@ -118,7 +121,7 @@ func handleRemove(dic *dictionary.Dictionary, w http.ResponseWriter, r *http.Req
 
 // handleList gère la route /list
 func handleList(dic *dictionary.Dictionary, w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
+	if r.Method != http.MethodGet { //Vérifier si la méthode HHTP de la requête est GET
 		http.Error(w, "Méthode non autorisée", http.StatusMethodNotAllowed)
 		return
 	}
