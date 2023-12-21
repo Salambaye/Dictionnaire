@@ -63,15 +63,24 @@ func (d *Dictionary) SaveToFile(filename string) error {
 }
 
 // Ajoute une entrée au dictionnaire en utilisant un channel.
-func (d *Dictionary) Add(word, definition string, ch chan struct{}) {
+func (d *Dictionary) Add(word, definition string, ch chan struct{}, filename string) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	d.entries[word] = definition
+
+	// Enregistre les modifications dans le fichier après l'ajout.
+	err := d.SaveToFile(filename)
+	if err != nil {
+		fmt.Println("Erreur lors de l'enregistrement du fichier :", err)
+		return
+	}
+
+	// Signale que l'opération est terminée.
 	ch <- struct{}{}
 }
 
 // Supprime une entrée du dictionnaire en utilisant un channel et enregistre les modifications dans le fichier.
-func (d *Dictionary) Remove(word string, ch chan struct{}, filename string) error {
+func (d *Dictionary) Remove(word string, chRemove, chLoad chan struct{}, filename string) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
@@ -89,11 +98,15 @@ func (d *Dictionary) Remove(word string, ch chan struct{}, filename string) erro
 		return err
 	}
 
-	// Signale que l'opération est terminée.
-	close(ch)
+	// Signale que l'opération de suppression est terminée.
+	close(chRemove)
+
+	// Attends que la lecture du fichier soit terminée avant de signaler la fin de l'opération.
+	<-chLoad
 
 	// Affiche un message pour indiquer que le mot a été supprimé.
 	fmt.Printf("Le mot '%s' a été supprimé du dictionnaire\n", word)
+
 	return nil
 }
 
@@ -102,11 +115,6 @@ func (d *Dictionary) Get(word string) (string, bool) {
 	definition, mottrouve := d.entries[word]
 	return definition, mottrouve
 }
-
-// Remove pour supprimer un mot du dictionnaire.
-// func (d Dictionary) Remove(word string) {
-// 	delete(d, word)
-// }
 
 // List renvoie une liste triée des mots et de leurs définitions.
 func (d *Dictionary) List() []string {
