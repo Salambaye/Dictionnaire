@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"Dictionnaire/dictionary"
+	"time"
 )
 
 const filename = "dictionary/dictionary.txt"
@@ -29,20 +30,51 @@ func main() {
 		fmt.Printf("%s ne se trouve pas dans le dictionnaire\n", mot_a_afficher)
 	}
 
-	// Utilisation de  la méthode Remove pour supprimer un mot du dictionnaire
-	motASupprimer := "Bras"
-	if _, mottrouve := dic.Get(motASupprimer); mottrouve {
-		dic.Remove(motASupprimer)
-		fmt.Printf("%s est supprimé du dictionnaire\n", motASupprimer)
-
-		// Sauvegarde des modifications dans le fichier texte
-		err := dic.SaveToFile(filename)
+	// Utilisation de la méthode Remove pour supprimer un mot du dictionnaire en utilisant un channel
+	channelRemove := make(chan struct{})
+	go func() {
+		err := dic.Remove("Bras", channelRemove, filename)
 		if err != nil {
-			fmt.Println("Erreur lors de la sauvegarde du fichier :", err)
+			fmt.Println(err)
 		}
-	} else {
-		fmt.Printf("%s n'est pas dans le dictionnaire, impossible de le supprimer\n", motASupprimer)
+	}()
+
+	// Utilisation de la méthode Add pour ajouter un mot au dictionnaire en utilisant un channel
+	channelAdd := make(chan struct{})
+	go func() {
+		dic.Add("Bras", "Définition du nouveau mot", channelAdd)
+	}()
+	// Attente des signaux des channels pour garantir que les opérations sont terminées
+	select {
+	case <-channelRemove:
+		// La suppression est terminée
+	case <-time.After(2 * time.Second):
+		// Si la suppression prend trop de temps, passe à l'étape suivante
+		fmt.Println("Le délai d'attente pour la suppression est écoulé")
 	}
+
+	select {
+	case <-channelAdd:
+		// L'ajout est terminé
+	case <-time.After(2 * time.Second):
+		// Si l'ajout prend trop de temps, passe à l'étape suivante
+		fmt.Println("Le délai d'attente pour l'ajout est écoulé")
+	}
+
+	// Utilisation de  la méthode Remove pour supprimer un mot du dictionnaire
+	// motASupprimer := "Bras"
+	// if _, mottrouve := dic.Get(motASupprimer); mottrouve {
+	// 	dic.Remove(motASupprimer)
+	// 	fmt.Printf("%s est supprimé du dictionnaire\n", motASupprimer)
+
+	// 	// Sauvegarde des modifications dans le fichier texte
+	// 	err := dic.SaveToFile(filename)
+	// 	if err != nil {
+	// 		fmt.Println("Erreur lors de la sauvegarde du fichier :", err)
+	// 	}
+	// } else {
+	// 	fmt.Printf("%s n'est pas dans le dictionnaire, impossible de le supprimer\n", motASupprimer)
+	// }
 
 	// Appel de la méthode List pour obtenir la liste triée des mots et de leurs définitions
 	wordList := dic.List()
