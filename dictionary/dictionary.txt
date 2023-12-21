@@ -1,6 +1,7 @@
-Valise: Une valise est un type de bagage utilisé pour transporter des vêtements et d'autres articles personnels lors de voyages
-Maman: Définition du nouveau mot
-Voiture: Véhicule
 Bras: Membre du corps
 Informatique: Domaine des concepts et autres techniques employées pour le traitement automatique de l’information
 WIFI: Le Wi-Fi est une technologie sans fil qui permet aux appareils électroniques de se connecter à Internet et de communiquer entre eux
+Ordinateur: Un ordinateur est une machine électronique capable de recevoir, de traiter et de stocker des données
+Valise: Une valise est un type de bagage utilisé pour transporter des vêtements et d'autres articles personnels lors de voyages
+Maman: Définition du nouveau mot
+Voiture: Véhicule
